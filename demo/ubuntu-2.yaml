@@ -1,0 +1,26 @@
+cluster:
+  name: cluster
+  privateKey: cluster-key
+machineSets:
+- name: normal
+  replicas: 1
+  spec:
+    image: brightzheng100/vind-ubuntu-root:22.04
+    name: node%d
+    networks:
+    - my-network
+    portMappings:
+    - containerPort: 22
+    volumes:
+    - type: bind
+      source: /
+      destination: /host
+- name: root
+  replicas: 1
+  spec:
+    image: brightzheng100/vind-ubuntu:22.04
+    name: node%d
+    networks:
+    - my-network
+    portMappings:
+    - containerPort: 22

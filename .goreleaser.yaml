@@ -1,0 +1,48 @@
+builds:
+  - #
+    # ID of the build.
+    #
+    # Default: Project directory name.
+    id: "goreleaser-build"
+
+    # Binary name.
+    # Can be a path (e.g. `bin/app`) to wrap the binary in a directory.
+    #
+    # Default: Project directory name.
+    binary: vind
+
+    # Custom ldflags.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
+    # and https://pkg.go.dev/cmd/link
+    #
+    # Default: '-s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.builtBy=goreleaser'.
+    # Templates: allowed.
+    ldflags:
+      - -s -w
+      - -X github.com/brightzheng100/vind/cmd.version=v{{.Version}}
+      - -X github.com/brightzheng100/vind/cmd.commit={{.Commit}}
+      - -X github.com/brightzheng100/vind/cmd.date={{.Date}}
+
+    # GOOS list to build for.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+    #
+    # Default: [ 'darwin', 'linux', 'windows' ].
+    goos:
+      - darwin
+      - linux
+      - windows
+
+    # GOARCH to build for.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+    #
+    # Default: [ '386', 'amd64', 'arm64' ].
+    goarch:
+      - amd64
+      - arm64
+
+    # List of combinations of GOOS + GOARCH + GOARM to ignore.
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: linux
+        goarch: arm

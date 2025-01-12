@@ -1,0 +1,14 @@
+cluster:
+  name: cluster
+  privateKey: cluster-key
+machineSets:
+- name: ubuntu
+  replicas: 2
+  spec:
+    image: brightzheng100/vind-ubuntu:22.04
+    name: node%d
+    user: ubuntu
+    portMappings:
+    - containerPort: 22
+    networks:
+    - my-network

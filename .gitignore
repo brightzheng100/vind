@@ -1,0 +1,11 @@
+_*
+bin
+key
+vendor
+key.pub
+cluster-key
+cluster-key.pub
+vind
+vind.yaml
+.vscode
+**/.DS_Store
