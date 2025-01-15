@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:24.04
+FROM ubuntu:24.04
 
 ENV container=docker
 

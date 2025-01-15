@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM debian:bookworm
+FROM debian:bookworm
 
 ENV container=docker
 

@@ -6,7 +6,7 @@ image_action=${IMAGE_ACTION:-push}  # push or load
 
 # == Ubuntu ==
 
-for distro in "25.04" "24.10" "24.04" "22.04" "20.04" "18.04" "16.04"; do
+for distro in "25.04" "24.10" "24.04" "22.04" "20.04" "18.04"; do
 
 pushd ubuntu
 

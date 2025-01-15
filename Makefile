@@ -13,8 +13,8 @@ build:
 	GOARCH=amd64 GOOS=darwin go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_darwin_amd64 main.go
 	GOARCH=arm64 GOOS=darwin go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_darwin_arm64 main.go
 	# Linux
-	#GOARCH=amd64 GOOS=linux go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_linux_amd64 main.go
-	#GOARCH=arm64 GOOS=linux go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_linux_arm64 main.go
+	GOARCH=amd64 GOOS=linux go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_linux_amd64 main.go
+	GOARCH=arm64 GOOS=linux go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_linux_arm64 main.go
 	# Windows
 	#GOARCH=amd64 GOOS=windows go build ${GOFLAGS} -o ${BINARY_PATH}/${BINARY_NAME}_${VERSION_TAG}_windows_amd64 main.go
 

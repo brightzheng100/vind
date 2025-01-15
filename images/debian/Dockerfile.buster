@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM debian:buster
+FROM debian:buster
 
 ENV container=docker
 

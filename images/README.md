@@ -41,7 +41,6 @@ Refer to the [`build.sh](./build.sh) for how.
   - 22.04
   - 20.04
   - 18.04
-  - 16.04
 - brightzheng100/vind-ubuntu-root:`version`, where the `version` can be:
   - 25.04
   - 24.10
@@ -49,7 +48,6 @@ Refer to the [`build.sh](./build.sh) for how.
   - 22.04
   - 20.04
   - 18.04
-  - 16.04
 
 #### Fedora
 

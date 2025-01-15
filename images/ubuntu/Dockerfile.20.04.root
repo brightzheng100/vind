@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM ubuntu:20.04
+FROM ubuntu:20.04
 
 ENV container=docker
 

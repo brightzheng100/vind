@@ -11,6 +11,15 @@ builds:
     # Default: Project directory name.
     binary: vind
 
+    # Custom environment variables to be set during the builds.
+    # Invalid environment variables will be ignored.
+    # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Environment_variables
+    #
+    # Default: os.Environ() ++ env config section.
+    # Templates: allowed.
+    env:
+      - CGO_ENABLED=0
+
     # Custom ldflags.
     # For more info refer to: https://pkg.go.dev/cmd/go#hdr-Compile_packages_and_dependencies
     # and https://pkg.go.dev/cmd/link

@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM debian:bullseye
+FROM debian:bullseye
 
 ENV container=docker
 

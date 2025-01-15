@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM fedora:42
+FROM fedora:42
 
 ENV container=docker
 
