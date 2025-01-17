@@ -1,9 +1,9 @@
 # Virtual Machines IN Docker (`vind`)
 
-`vind`, the name comes from <u>**V**</u>M <u>**IN**</u> <u>**D**</u>ocker, is a tool to create containers that look and work like virtual machines, on Docker.
+`vind`, the name comes from <u>**V**</u>M <u>**IN**</u> <u>**D**</u>ocker, is a tool to create and manage a cluster of containers that look and work like virtual machines, on Docker (and Podman).
 
 The container, or called **Machine** in `vind`, runs `systemd` as PID 1 and a SSH daemon that can be used to log into.
-Such VM-like containers behave very much like a "normal" VM, it's even possible to run dockerd in them :)
+Such VM-like container behaves very much like a "normal" VM, it's even possible to run `dockerd` in it.
 
 [![asciicast](https://asciinema.org/a/697321.svg)](https://asciinema.org/a/697321)
 
