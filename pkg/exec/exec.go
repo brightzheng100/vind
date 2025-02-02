@@ -24,7 +24,7 @@ import (
 	"io"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 // Cmd abstracts over running a command somewhere, this is useful for testing
@@ -63,7 +63,7 @@ func CommandWithLogging(command string, args ...string) error {
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.Error(line)
+			utils.Logger.Error(line)
 		}
 	}
 	return err
@@ -98,10 +98,10 @@ func RunLoggingOutputOnFail(cmd Cmd) error {
 	cmd.SetStderr(&buff)
 	err := cmd.Run()
 	if err != nil {
-		log.Error("failed with:")
+		utils.Logger.Error("failed with:")
 		scanner := bufio.NewScanner(&buff)
 		for scanner.Scan() {
-			log.Error(scanner.Text())
+			utils.Logger.Error(scanner.Text())
 		}
 	}
 	return err

@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/brightzheng100/vind/pkg/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -82,7 +82,7 @@ func (conf Config) Validate() error {
 		err := machine.validate()
 		if err != nil {
 			valid = false
-			log.Fatalf(err.Error())
+			utils.Logger.Fatalf(err.Error())
 		}
 	}
 	if !valid {

@@ -1,0 +1,16 @@
+cluster:
+  name: cluster
+  privateKey: cluster-key
+machineSets:
+- name: k8s
+  replicas: 3
+  spec:
+    image: brightzheng100/vind-ubuntu:k8s
+    name: node%d
+    user: ubuntu
+    networks:
+    - my-network
+    portMappings:
+    - containerPort: 22
+    privileged: true
+    cmd: /usr/local/bin/entrypoint /sbin/init

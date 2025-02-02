@@ -19,7 +19,7 @@ Such VM-like container behaves very much like a "normal" VM, it's even possible 
 On ARM chip:
 
 ```sh
-curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.1.1/vind_0.1.1_darwin_arm64.tar.gz
+curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.2.0/vind_0.2.0_darwin_arm64.tar.gz
 tar -xvf vind.tar.gz && chmod +x vind
 sudo mv vind /usr/local/bin/
 ```
@@ -27,7 +27,7 @@ sudo mv vind /usr/local/bin/
 On Intel chip:
 
 ```sh
-curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.1.1/vind_0.1.1_darwin_amd64.tar.gz
+curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.2.0/vind_0.2.0_darwin_amd64.tar.gz
 tar -xvf vind.tar.gz && chmod +x vind
 sudo mv vind /usr/local/bin/
 ```
@@ -35,7 +35,7 @@ sudo mv vind /usr/local/bin/
 ### Linux
 
 ```sh
-curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.1.1/vind_0.1.1_linux_amd64.tar.gz
+curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v0.2.0/vind_0.2.0_linux_amd64.tar.gz
 tar -xvf vind.tar.gz && chmod +x vind
 sudo mv vind /usr/local/bin/
 ```

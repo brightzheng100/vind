@@ -21,8 +21,8 @@ package docker
 import (
 	"regexp"
 
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/brightzheng100/vind/pkg/exec"
 )
@@ -42,7 +42,7 @@ func Run(image string, runArgs []string, containerArgs []string) (id string, err
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.Error(line)
+			utils.Logger.Error(line)
 		}
 		return "", err
 	}

@@ -29,11 +29,11 @@ import (
 	"github.com/brightzheng100/vind/pkg/config"
 	"github.com/brightzheng100/vind/pkg/docker"
 	"github.com/brightzheng100/vind/pkg/exec"
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/docker/docker/api/types"
 	"github.com/ghodss/yaml"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // cluster is a running cluster.
@@ -112,7 +112,7 @@ func (c *cluster) forSpecificMachines(do func(*Machine) error, machineNames []st
 	// log warning for non existing machines
 	for key, value := range machineToHandle {
 		if !value {
-			log.Warnf("machine %v does not exist", key)
+			utils.Logger.Warnf("machine %v does not exist", key)
 		}
 	}
 	return nil
@@ -157,7 +157,7 @@ func (c *cluster) ensureSSHKey() error {
 		return nil
 	}
 
-	log.Infof("Creating SSH key: %s ...", path)
+	utils.Logger.Infof("Creating SSH key: %s ...", path)
 	return run(
 		"ssh-keygen", "-q",
 		"-t", "rsa",
@@ -242,7 +242,7 @@ func (c *cluster) Show(machineNames []string) (machines []*Machine, err error) {
 			// Proceed only if no machine names specified or the machine name is included
 			if len(machineNames) == 0 || slices.Contains(machineNames, m.machineName) {
 				if !m.IsCreated() {
-					log.Warnf("machine not created: %s", m.machineName)
+					utils.Logger.Warnf("machine not created: %s", m.machineName)
 					continue
 				}
 
@@ -362,6 +362,7 @@ var knownHosts = regexp.MustCompile("^Warning: Permanently added .* to the list 
 
 // ssh returns true if the command should be tried again.
 func ssh(args []string) (bool, error) {
+	utils.Logger.Debug("ssh", args)
 	cmd := exec.Command("ssh", args...)
 
 	refusedFilter := &matchFilter{
@@ -409,7 +410,7 @@ func mappingFromPort(spec *config.Machine, containerPort int) (*config.PortMappi
 
 // SSH logs into the named machine with SSH.
 func (c *cluster) SSH(machine *Machine, username string, remoteArgs ...string) error {
-	log.Infof("SSH into machine [%s] with user [%s]", machine.machineName, username)
+	utils.Logger.Infof("SSH into machine [%s] with user [%s]", machine.machineName, username)
 
 	hostPort, err := machine.HostPort(22)
 	if err != nil {
@@ -436,14 +437,14 @@ func (c *cluster) SSH(machine *Machine, username string, remoteArgs ...string) e
 
 	if len(remoteArgs) > 0 {
 		// if there is any remote args, let's respect them
-		log.Infof("With remoteArgs: %s", remoteArgs)
+		utils.Logger.Infof("With remoteArgs: %s", remoteArgs)
 		args = append(args, remoteArgs...)
 	} else {
 		// try to auto cd into currently mapped folder
 		// if bind mount to "/host" exists
 		cd := machine.AutoCdTo()
 		if cd != "" {
-			log.Infof("Trying to cd into: %s", cd)
+			utils.Logger.Infof("Trying to cd into: %s", cd)
 			args = append(args, fmt.Sprintf("cd %s; exec $SHELL -l", cd))
 		}
 	}

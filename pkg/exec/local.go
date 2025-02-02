@@ -25,8 +25,8 @@ import (
 	osexec "os/exec"
 	"strings"
 
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 // LocalCmd wraps os/exec.Cmd, implementing the kind/pkg/exec.Cmd interface
@@ -70,7 +70,7 @@ func (cmd *LocalCmd) SetStderr(w io.Writer) {
 
 // Run runs
 func (cmd *LocalCmd) Run() error {
-	log.Debugf("Running: %v %v", cmd.Path, cmd.Args)
+	utils.Logger.Debugf("Running: %v %v", cmd.Path, cmd.Args)
 	return cmd.Cmd.Run()
 }
 
@@ -78,7 +78,7 @@ func ExecuteCommand(command string, args ...string) (string, error) {
 	cmd := osexec.Command(command, args...)
 	out, err := cmd.CombinedOutput()
 	cmdArgs := strings.Join(cmd.Args, " ")
-	//log.Debugf("Command %q returned %q\n", cmdArgs, out)
+	//utils.Logger.Debugf("Command %q returned %q\n", cmdArgs, out)
 	if err != nil {
 		return "", errors.Wrapf(err, "command %q exited with %q", cmdArgs, out)
 	}

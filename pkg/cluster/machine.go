@@ -25,9 +25,9 @@ import (
 	"github.com/brightzheng100/vind/pkg/config"
 	"github.com/brightzheng100/vind/pkg/docker"
 	"github.com/brightzheng100/vind/pkg/exec"
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/docker/docker/api/types/network"
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 )
 
 const KEY_PATH_ROOT = "/root/.ssh/authorized_keys"
@@ -85,23 +85,23 @@ func newMachine(cluster *config.Cluster, machineSet *config.MachineSet, machine 
 // CreateMachine creates and starts a new machine in the cluster.
 func (m *Machine) Create(c *config.Cluster, publicKey []byte) error {
 	// Start the container.
-	log.Infof("Creating machine: %s ...", m.containerName)
+	utils.Logger.Infof("Creating machine: %s ...", m.containerName)
 
 	if m.IsCreated() {
-		log.Infof("Machine %s is already created...", m.containerName)
+		utils.Logger.Infof("Machine %s is already created...", m.containerName)
 		return nil
 	}
 
-	cmd := "/sbin/init"
-	if m.spec.Cmd != "" {
-		cmd = m.spec.Cmd
+	cmd := []string{"/sbin/init"}
+	if strings.TrimSpace(m.spec.Cmd) != "" {
+		cmd = strings.Split(strings.TrimSpace(m.spec.Cmd), " ")
 	}
 
 	// create the actual Docker container
 	runArgs := m.generateContainerRunArgs(c.Name)
 	_, err := docker.Create(m.spec.Image,
 		runArgs,
-		[]string{cmd},
+		cmd,
 	)
 	if err != nil {
 		return err
@@ -109,7 +109,7 @@ func (m *Machine) Create(c *config.Cluster, publicKey []byte) error {
 
 	if len(m.spec.Networks) > 1 {
 		for _, network := range m.spec.Networks[1:] {
-			log.Infof("Connecting %s to the %s network...", m.machineName, network)
+			utils.Logger.Infof("Connecting %s to the %s network...", m.machineName, network)
 
 			// if default "bridge" network is specified, connect to it
 			if network == "bridge" {
@@ -125,7 +125,7 @@ func (m *Machine) Create(c *config.Cluster, publicKey []byte) error {
 	}
 
 	// start up the container
-	log.Infof("Starting machine %s...", m.machineName)
+	utils.Logger.Infof("Starting machine %s...", m.machineName)
 	if err := docker.Start(m.containerName); err != nil {
 		return err
 	}
@@ -194,7 +194,7 @@ func (m *Machine) generateContainerRunArgs(cluster string) []string {
 
 	if len(m.spec.Networks) > 0 {
 		network := m.spec.Networks[0]
-		log.Infof("Connecting %s to the %s network...", m.machineName, network)
+		utils.Logger.Infof("Connecting %s to the %s network...", m.machineName, network)
 		runArgs = append(runArgs, "--network", m.spec.Networks[0])
 		if network != "bridge" {
 			runArgs = append(runArgs, "--network-alias", m.machineName)
@@ -207,12 +207,12 @@ func (m *Machine) generateContainerRunArgs(cluster string) []string {
 // Delete deletes a Machine from the cluster.
 func (m *Machine) Delete() error {
 	if !m.IsCreated() {
-		log.Infof("Machine %s hasn't been created", m.machineName)
+		utils.Logger.Infof("Machine %s hasn't been created", m.machineName)
 		return nil
 	}
 
 	if m.IsStarted() {
-		log.Infof("Machine %s is started, stopping and deleting machine...", m.machineName)
+		utils.Logger.Infof("Machine %s is started, stopping and deleting machine...", m.machineName)
 		err := docker.Kill("KILL", m.containerName)
 		if err != nil {
 			return err
@@ -223,7 +223,7 @@ func (m *Machine) Delete() error {
 		)
 		return cmd.Run()
 	}
-	log.Infof("Deleting machine: %s ...", m.machineName)
+	utils.Logger.Infof("Deleting machine: %s ...", m.machineName)
 	cmd := exec.Command(
 		"docker", "rm", "--volumes",
 		m.containerName,
@@ -234,14 +234,14 @@ func (m *Machine) Delete() error {
 // Start starts a Machine
 func (m *Machine) Start() error {
 	if !m.IsCreated() {
-		log.Infof("Machine %s hasn't been created...", m.machineName)
+		utils.Logger.Infof("Machine %s hasn't been created...", m.machineName)
 		return nil
 	}
 	if m.IsStarted() {
-		log.Infof("Machine %s is already started...", m.machineName)
+		utils.Logger.Infof("Machine %s is already started...", m.machineName)
 		return nil
 	}
-	log.Infof("Starting machine: %s ...", m.machineName)
+	utils.Logger.Infof("Starting machine: %s ...", m.machineName)
 
 	// Run command while sigs.k8s.io/kind/pkg/container/docker doesn't
 	// have a start command
@@ -255,14 +255,14 @@ func (m *Machine) Start() error {
 // Stop stops a Machine
 func (m *Machine) Stop() error {
 	if !m.IsCreated() {
-		log.Infof("Machine %s hasn't been created...", m.containerName)
+		utils.Logger.Infof("Machine %s hasn't been created...", m.containerName)
 		return nil
 	}
 	if !m.IsStarted() {
-		log.Infof("Machine %s is already stopped...", m.containerName)
+		utils.Logger.Infof("Machine %s is already stopped...", m.containerName)
 		return nil
 	}
-	log.Infof("Stopping machine: %s ...", m.containerName)
+	utils.Logger.Infof("Stopping machine: %s ...", m.containerName)
 
 	// Run command while sigs.k8s.io/kind/pkg/container/docker doesn't
 	// have a start command
@@ -415,7 +415,7 @@ func (m *Machine) AutoCdTo() string {
 		if volume.Type == "bind" && volume.Destination == "/host" {
 			pwd, err := os.Getwd()
 			if err != nil {
-				log.Warn("can't get current working directory: %w", err)
+				utils.Logger.Warn("can't get current working directory: %w", err)
 			}
 			return fmt.Sprintf("%s%s", "/host", pwd)
 		}

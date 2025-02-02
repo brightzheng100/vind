@@ -19,6 +19,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -37,15 +38,15 @@ func init() {
 
 func configFile(file string) string {
 	if file != "" {
-		log.Debugf("config file used: %s", file)
+		utils.Logger.Debugf("config file used: %s", file)
 		return file
 	} else {
 		file = os.Getenv("VIND_CONFIG")
-		log.Debugf("no config file specified, try getting from $VIND_CONFIG: %s", file)
+		utils.Logger.Debugf("no config file specified, try getting from $VIND_CONFIG: %s", file)
 		if file != "" {
-			log.Debugf("config file used: %s", file)
+			utils.Logger.Debugf("config file used: %s", file)
 		} else {
-			log.Debugf("fall back to default config file: %s", DEFAULT_CONFIG_FILE)
+			utils.Logger.Debugf("fall back to default config file: %s", DEFAULT_CONFIG_FILE)
 			file = DEFAULT_CONFIG_FILE
 		}
 		return file

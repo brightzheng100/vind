@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"github.com/brightzheng100/vind/pkg/cluster"
+	"github.com/brightzheng100/vind/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -92,15 +93,15 @@ func init() {
 func configCreate(cmd *cobra.Command, args []string) error {
 	opts := &configCreateOptions
 
-	log.Infof("Creating config file %s", opts.file)
+	utils.Logger.Infof("Creating config file %s", opts.file)
 
 	cluster, err := cluster.New(defaultConfig)
 	if err != nil {
 		return err
 	}
 	if configExists(configFile(opts.file)) && !opts.override {
-		log.Warnf("Failed due to configuration file at %s already exists", opts.file)
-		return fmt.Errorf("Configuration file at %s already exists. Override it by specifying --override or -o", opts.file)
+		utils.Logger.Warnf("Failed due to configuration file at %s already exists", opts.file)
+		return fmt.Errorf("configuration file at %s already exists. Override it by specifying --override or -o", opts.file)
 	}
 	return cluster.Save(configFile(opts.file))
 }

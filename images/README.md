@@ -30,6 +30,18 @@ export REPO_NAMESPACE=<YOUR REPO NAMESPACE, e.g. brightzheng100, or ghcr.io/YOUR
 Or, you can build you own always by using `docker buildx build`.
 Refer to the [`build.sh](./build.sh) for how.
 
+
+Please note that when using `podman` to build, the commands are actually quite different.
+
+Let's take building `brightzheng100/vind-ubuntu:22.04` for example:
+
+```sh
+# 1. Build them with a manifest specified
+podman build --platform linux/amd64,linux/arm64 --file Dockerfile.22.04.non-root --manifest brightzheng100/vind-ubuntu:ubuntu-manifest .
+# 2. Push manifest with the targeted image tag
+podman manifest push brightzheng100/vind-ubuntu:ubuntu-manifest brightzheng100/vind-ubuntu:22.04
+```
+
 ### List
 
 #### Ubuntu

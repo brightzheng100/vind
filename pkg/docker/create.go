@@ -20,9 +20,9 @@ package docker
 
 import (
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/brightzheng100/vind/pkg/exec"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 // Create creates a container with "docker create", with some error handling
@@ -32,12 +32,15 @@ func Create(image string, runArgs []string, containerArgs []string) (id string, 
 	args = append(args, runArgs...)
 	args = append(args, image)
 	args = append(args, containerArgs...)
+
+	utils.Logger.Debug("Docker command: ", "docker", args)
 	cmd := exec.Command("docker", args...)
+
 	output, err := exec.CombinedOutputLines(cmd)
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.Error(line)
+			utils.Logger.Error(line)
 		}
 		return "", err
 	}

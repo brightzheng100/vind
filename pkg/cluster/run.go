@@ -20,10 +20,9 @@ import (
 	"bytes"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/brightzheng100/vind/pkg/docker"
 	"github.com/brightzheng100/vind/pkg/exec"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 // run runs a command in host. It will output the combined stdout/error on failure.
@@ -33,7 +32,7 @@ func run(name string, args ...string) error {
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.Error(line)
+			utils.Logger.Error(line)
 		}
 	}
 	return err
@@ -47,7 +46,7 @@ func containerRun(nameOrID string, name string, args ...string) error {
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.WithField("machine", nameOrID).Error(line)
+			utils.Logger.WithField("machine", nameOrID).Error(line)
 		}
 	}
 	return err

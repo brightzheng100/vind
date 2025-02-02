@@ -122,7 +122,7 @@ func (TableFormatter) Format(w io.Writer, machines []*Machine) error {
 	}
 
 	table := tabwriter.NewWriter(w, 0, 0, padding, ' ', 0)
-	wr.writeColumns(table, []string{"CONTAINER NAME", "MACHINE NAME", "PORTS", "IP", "IMAGE", "CMD", "STATE", "BACKEND"})
+	wr.writeColumns(table, []string{"CONTAINER NAME", "MACHINE NAME", "PORTS", "IP", "IMAGE", "CMD", "STATE"})
 	// we bail early here if there was an error so we don't process the below loop
 	if wr.err != nil {
 		return wr.err
@@ -140,7 +140,7 @@ func (TableFormatter) Format(w io.Writer, machines []*Machine) error {
 			}
 		}
 		ps := strings.Join(ports, ",")
-		wr.writeColumns(table, []string{s.Container, s.MachineName, ps, s.IP, s.Image, s.Command, s.State, s.Spec.Backend})
+		wr.writeColumns(table, []string{s.Container, s.MachineName, ps, s.IP, s.Image, s.Command, s.State})
 	}
 
 	if wr.err != nil {

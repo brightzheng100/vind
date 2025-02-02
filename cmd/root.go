@@ -19,11 +19,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
-
-var log = logrus.New()
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -45,28 +42,5 @@ var cfgFile struct {
 }
 
 func init() {
-	// init logging framework
-	initLog()
-
 	rootCmd.PersistentFlags().StringVarP(&cfgFile.config, "config", "c", "", "Cluster configuration file")
-}
-
-func initLog() {
-	log.SetFormatter(&logrus.TextFormatter{})
-	log.SetOutput(os.Stdout)
-
-	// defaults to Info log level
-	log.SetLevel(logrus.InfoLevel)
-
-	// and log level is configurable by env vaiable $LOG_LEVEL
-	config_log_level := os.Getenv("LOG_LEVEL")
-	if config_log_level != "" {
-		log_level, err := logrus.ParseLevel(config_log_level)
-		if err != nil {
-			log.Warnf("configured LOG_LEVEL is unparsable: %s, ignore and fall back to Info level", config_log_level)
-		} else {
-			log.Infof("log level is set to [%s]", log_level)
-			log.SetLevel(log_level)
-		}
-	}
 }

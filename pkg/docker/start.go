@@ -20,7 +20,7 @@ package docker
 
 import (
 	"github.com/brightzheng100/vind/pkg/exec"
-	log "github.com/sirupsen/logrus"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 func runWithLogging(cmd exec.Cmd) error {
@@ -28,7 +28,7 @@ func runWithLogging(cmd exec.Cmd) error {
 	if err != nil {
 		// log error output if there was any
 		for _, line := range output {
-			log.Error(line)
+			utils.Logger.Error(line)
 		}
 	}
 	return err

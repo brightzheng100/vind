@@ -22,9 +22,8 @@ import (
 	"os"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/brightzheng100/vind/pkg/exec"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 // PullIfNotPresent will pull an image if it is not present locally
@@ -36,7 +35,7 @@ func PullIfNotPresent(image string, retries int) (pulled bool, err error) {
 	// if this did not return an error, then the image exists locally
 	cmd := exec.Command("docker", "inspect", "--type=image", image)
 	if err := cmd.Run(); err == nil {
-		log.Infof("Docker Image: %s present locally", image)
+		utils.Logger.Infof("Docker Image: %s present locally", image)
 		return false, nil
 	}
 	// otherwise try to pull it
@@ -45,13 +44,13 @@ func PullIfNotPresent(image string, retries int) (pulled bool, err error) {
 
 // Pull pulls an image, retrying up to retries times
 func Pull(image string, retries int) error {
-	log.Infof("Pulling image: %s ...", image)
+	utils.Logger.Infof("Pulling image: %s ...", image)
 	err := setPullCmd(image).Run()
 	// retry pulling up to retries times if necessary
 	if err != nil {
 		for i := 0; i < retries; i++ {
 			time.Sleep(time.Second * time.Duration(i+1))
-			log.WithError(err).Infof("Trying again to pull image: %s ...", image)
+			utils.Logger.WithError(err).Infof("Trying again to pull image: %s ...", image)
 			// TODO(bentheelder): add some backoff / sleep?
 			if err = setPullCmd(image).Run(); err == nil {
 				break
@@ -59,7 +58,7 @@ func Pull(image string, retries int) error {
 		}
 	}
 	if err != nil {
-		log.WithError(err).Infof("Failed to pull image: %s", image)
+		utils.Logger.WithError(err).Infof("Failed to pull image: %s", image)
 	}
 	return err
 }
@@ -68,7 +67,7 @@ func Pull(image string, retries int) error {
 func IsRunning() error {
 	cmd := exec.Command("docker", "info")
 	if err := cmd.Run(); err != nil {
-		log.WithError(err).Infoln("Cannot connect to the Docker daemon. Is the docker daemon running?")
+		utils.Logger.WithError(err).Infoln("Cannot connect to the Docker daemon. Is the docker daemon running?")
 		return err
 	}
 	return nil

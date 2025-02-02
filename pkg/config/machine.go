@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/brightzheng100/vind/pkg/utils"
 )
 
 // Machine is the machine configuration.
@@ -95,7 +95,7 @@ type PortMapping struct {
 func (conf Machine) validate() error {
 	validName := strings.Contains(conf.Name, "%d")
 	if !validName {
-		log.Warnf("Machine conf validation: machine name %v is not valid, it should contains %%d", conf.Name)
+		utils.Logger.Warnf("Machine conf validation: machine name %v is not valid, it should contains %%d", conf.Name)
 		return fmt.Errorf("Machine configuration not valid")
 	}
 	return nil
