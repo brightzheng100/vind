@@ -43,6 +43,8 @@ In this demo, I also reuse the work `kind` has done for the tweaks.
 
 ### 1. Rebuild the image with `kind`'s `entrypoint` shell script as the entrypoint.
 
+> Note: you may skip this step as I've built and host the image here: `brightzheng100/vind-ubuntu:k8s`
+
 Refer to [Dockerfile](./k8s-in-vind/Dockerfile):
 
 ```Dockerfile
@@ -81,7 +83,7 @@ podman manifest push brightzheng100/vind-ubuntu:k8s-manifest brightzheng100/vind
 
 ### 2. Create `vind` cluster
 
-As usual, create the `vind` config file -- refer to [k8s-in-vind.yaml](./k8s-in-vind/k8s-in-vind.yaml):
+As usual, create the `vind` config file with the image built above -- refer to [k8s-in-vind.yaml](./k8s-in-vind/k8s-in-vind.yaml):
 
 ```yaml
 cluster:
@@ -102,7 +104,7 @@ machineSets:
     cmd: /usr/local/bin/entrypoint /sbin/init
 ```
 
-Then, create the cluster:
+Then, create the cluster -- before that, make sure the Docker network namely `my-network` is created by `docker network create my-network`:
 
 ```sh
 # Expose VIND_CONFIG and point to the right vind YAML file
@@ -111,7 +113,7 @@ $ export VIND_CONFIG=`PWD`/k8s-in-vind/k8s-in-vind.yaml
 # Create the vind cluster
 $ vind create
 
-# Where we have 3 machines
+# Now we have 3 machines
 $ vind show
 CONTAINER NAME      MACHINE NAME   PORTS       IP           IMAGE                            CMD                                    STATE
 cluster-k8s-node0   k8s-node0      44107->22   10.89.0.29   brightzheng100/vind-ubuntu:k8s   /usr/local/bin/entrypoint,/sbin/init   Running
@@ -121,7 +123,7 @@ cluster-k8s-node2   k8s-node2      33375->22   10.89.0.31   brightzheng100/vind-
 
 ### 3. Bootstrap it 
 
-In `node0`:
+SSH into `node0`:
 
 ```sh
 vind ssh k8s-node0
@@ -169,11 +171,13 @@ Then, `vind ssh` into other nodes to join the cluster.
 
 #### Join `node1` into the cluster
 
-SSH into machine `node1` first:
+SSH into machine `node1`:
 
 ```sh
 $ vind ssh k8s-node1
 ```
+
+Prepare the node:
 
 ```sh
 ubuntu@k8s-node1:~$ sudo apt-get update
@@ -183,7 +187,7 @@ ubuntu@k8s-node1:~$ cd instana-handson-labs/scripts
 ubuntu@k8s-node1:~/instana-handson-labs/scripts$ ./prepare-join-k8s.sh
 ```
 
-Now let's slight update the generated `kubeadm join` command with `sudo` (as it needs root permission to run) and `--ignore-preflight-errors=all` flag:
+Now let's slightly update the generated `kubeadm join` command with `sudo` (as it needs root permission to run) and `--ignore-preflight-errors=all` flag:
 
 ```sh
 $ sudo kubeadm join 10.89.0.29:6443 --token ypmsa4.1u4ldos4vusk657o \
@@ -212,6 +216,8 @@ Similarly, SSH into machine `node2`:
 $ vind ssh k8s-node2
 ```
 
+Prepare the node:
+
 ```sh
 ubuntu@k8s-node2:~$ sudo apt-get update
 ubuntu@k8s-node2:~$ sudo apt-get install git -y
@@ -220,7 +226,7 @@ ubuntu@k8s-node2:~$ cd instana-handson-labs/scripts
 ubuntu@k8s-node2:~/instana-handson-labs/scripts$ ./prepare-join-k8s.sh
 ```
 
-Copy and run above updated `kubeadm join` command:
+Then, copy and run above updated `kubeadm join` command:
 
 ```sh
 $ sudo kubeadm join 10.89.0.29:6443 --token ypmsa4.1u4ldos4vusk657o \
@@ -262,3 +268,5 @@ kube-system          kube-proxy-txqnw                           1/1     Running 
 kube-system          kube-scheduler-k8s-node0                   1/1     Running   0          52m
 local-path-storage   local-path-provisioner-8ffbb88cb-7dwwv     1/1     Running   0          47m
 ```
+
+Done! You've successfully bootstrapped the Kubernetes cluster in a 3-node environment, just like you have 3 "normal" VMs, but for free on Docker.
