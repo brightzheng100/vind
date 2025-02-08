@@ -265,6 +265,15 @@ I've created a series of Docker images, covering Ubuntu, CentOS, Debian, Fedora,
 
 You may refer to [images/README.md](./images/README.md) for what have been prepared and how to customize.
 
+## Use Cases
+
+In the [demo/README.md](./demo/README.md), I've shared some interesting experiments as use cases that you may explore, on top of the `vind` fundamental capabilities.
+
+For example:
+- The automated demo to showcase the basic usage of `vind` at [General demo](./demo/README.md#general-demo).
+- Docker in `vind` about how to run Docker in `vind`'s Machine at [Demo: Docker in `vind`](./demo/README.md#demo-docker-in-vind).
+- Kubernetes in `vind` about how to build multi-node Kubernetes cluster from scratch in `vind`'s Machines at [Demo: Kubernetes in `vind`](./demo/README.md#demo-kubernetes-in-vind).
+- And more to come -- don't forget to let me know if you've got some more interesting use cases, and PRs are always welcome.
 
 ## How About `podman`?
 

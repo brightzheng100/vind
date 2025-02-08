@@ -93,12 +93,13 @@ machineSets:
   spec:
     image: brightzheng100/vind-ubuntu:k8s
     name: node%d
+    user: ubuntu
     networks:
     - my-network
     portMappings:
     - containerPort: 22
     privileged: true
-    cmd: /usr/local/bin/entrypoint /bin/bash
+    cmd: /usr/local/bin/entrypoint /sbin/init
 ```
 
 Then, create the cluster:
@@ -123,7 +124,7 @@ cluster-k8s-node2   k8s-node2      33375->22   10.89.0.31   brightzheng100/vind-
 In `node0`:
 
 ```sh
-vind ssh ubuntu@k8s-node0
+vind ssh k8s-node0
 ```
 
 Reuse the boostrapping scripts I built with `kubeadm`:
@@ -164,14 +165,14 @@ kubeadm join 10.89.0.29:6443 --token ypmsa4.1u4ldos4vusk657o \
 
 Copy and keep it first.
 
-Then, `vind ssh` into other nodes to join the cluster:
+Then, `vind ssh` into other nodes to join the cluster.
 
 #### Join `node1` into the cluster
 
 SSH into machine `node1` first:
 
 ```sh
-$ vind ssh ubuntu@k8s-node1
+$ vind ssh k8s-node1
 ```
 
 ```sh
@@ -201,14 +202,14 @@ k8s-node1   Ready    <none>          4m26s   v1.30.9
 
 Yes, our cluster has two nodes!
 
-> Note: it may take slightly longer time to turn the status into `Ready`. That's fine and just wait for a while.
+> Note: it may take 1 minute or so to turn the status into `Ready`. That's fine and just be patient.
 
 #### Join `node2` into the cluster
 
 Similarly, SSH into machine `node2`:
 
 ```sh
-$ vind ssh ubuntu@k8s-node2
+$ vind ssh k8s-node2
 ```
 
 ```sh
@@ -239,7 +240,7 @@ k8s-node2   Ready    <none>          91s   v1.30.9
 
 Yes, our cluster has three nodes!
 
-> Note: it may take slightly longer time to turn the status into `Ready`. That's fine and just wait for a while.
+> Note: it may take 1 minute or so to turn the status into `Ready`. That's fine and just be patient.
 
 And very soon, the DaemonSets will automatically roll out the pods to all three nodes:
 
