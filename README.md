@@ -163,7 +163,7 @@ Here, let's understand a bit on the naming, by given `cluster-test-node0` in our
 
 ### ssh
 
-SSH into a machine with `vind ssh [USER@]<MACHINE_NAME>`, which is the combination of MachineSet's name and Machine's name.
+SSH into a machine with `ssh [[USER@]<MACHINE_NAME>]`, where the `<MACHINE_NAME>` is the combination of MachineSet's name and Machine's name.
 
 ```sh
 $ vind ssh test-node0
@@ -180,7 +180,9 @@ root@test-node0:~# ps fx
      67 ?        S      0:00  \_ (sd-pam)
 ```
 
-> Note: the machine user name can be other user, instead of `root`, if that's prepared in the Docker image and is specified in the YAML file.
+> Note: 
+> 1. The machine user name can be other user, instead of `root`, if that's prepared in the Docker image and is specified in the YAML file.
+> 2. The `[[USER@]<MACHINE_NAME>]` is optional: when no machine is specified, it will automatically pick the first machine.
 
 ### stop
 
