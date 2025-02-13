@@ -399,6 +399,15 @@ func (c *cluster) GetMachineByMachineName(machineName string) (*Machine, error) 
 	return nil, fmt.Errorf("Machine name not found: %s", machineName)
 }
 
+func (c *cluster) GetFirstMachine() (*Machine, error) {
+	if len(c.config.MachineSets) == 0 {
+		return nil, errors.New("no machineSet is configured")
+	} else {
+		machineSet := c.config.MachineSets[0]
+		return newMachine(&c.config.Cluster, &machineSet, &machineSet.Spec, 0), nil
+	}
+}
+
 func mappingFromPort(spec *config.Machine, containerPort int) (*config.PortMapping, error) {
 	for i := range spec.PortMappings {
 		if int(spec.PortMappings[i].ContainerPort) == containerPort {
@@ -409,7 +418,7 @@ func mappingFromPort(spec *config.Machine, containerPort int) (*config.PortMappi
 }
 
 // SSH logs into the named machine with SSH.
-func (c *cluster) SSH(machine *Machine, username string, remoteArgs ...string) error {
+func (c *cluster) SSH(machine *Machine, username string, extraSshArgs string) error {
 	utils.Logger.Infof("SSH into machine [%s] with user [%s]", machine.machineName, username)
 
 	hostPort, err := machine.HostPort(22)
@@ -435,10 +444,10 @@ func (c *cluster) SSH(machine *Machine, username string, remoteArgs ...string) e
 		"-t", remote, // https://stackoverflow.com/questions/626533/how-can-i-ssh-directly-to-a-particular-directory
 	}
 
-	if len(remoteArgs) > 0 {
-		// if there is any remote args, let's respect them
-		utils.Logger.Infof("With remoteArgs: %s", remoteArgs)
-		args = append(args, remoteArgs...)
+	if len(extraSshArgs) > 0 {
+		// if there are any extra SSH args, let's respect them
+		utils.Logger.Infof("With extra SSH args: %s", extraSshArgs)
+		args = append(args, extraSshArgs)
 	} else {
 		// try to auto cd into currently mapped folder
 		// if bind mount to "/host" exists

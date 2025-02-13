@@ -17,9 +17,10 @@ limitations under the License.
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	c "github.com/brightzheng100/vind/pkg/cluster"
 	"github.com/spf13/cobra"
@@ -27,13 +28,18 @@ import (
 
 // sshCmd represents the ssh command
 var sshCmd = &cobra.Command{
-	Use:   "ssh [USER@]<MACHINE_NAME>",
-	Short: "SSH into a machine",
+	Use:   "ssh [[USER@]<MACHINE_NAME>]",
+	Short: "SSH into a specific machine, or first machine if not specified",
 	Args:  validateSSHArgs,
 	RunE:  ssh,
 }
 
+var configOptions struct {
+	extraSshArgs string
+}
+
 func init() {
+	sshCmd.Flags().StringVarP(&configOptions.extraSshArgs, "extra-ssh-args", "e", "", "Extra args for SSH command")
 	rootCmd.AddCommand(sshCmd)
 }
 
@@ -47,31 +53,39 @@ func ssh(cmd *cobra.Command, args []string) error {
 	var machineName string
 	var userName string
 
-	if strings.Contains(args[0], "@") {
-		items := strings.Split(args[0], "@")
-		if len(items) != 2 {
-			return fmt.Errorf("bad syntax for user@machineName: %v", items)
+	if len(args) == 0 {
+		machine, err = cluster.GetFirstMachine()
+		if err != nil {
+			return errors.Wrap(err, "SSH into the first machine failed")
 		}
-		userName = items[0]
-		machineName = items[1]
 	} else {
-		machineName = args[0]
-	}
+		if strings.Contains(args[0], "@") {
+			items := strings.Split(args[0], "@")
+			if len(items) != 2 {
+				return fmt.Errorf("bad syntax for user@machineName: %v", items)
+			}
+			userName = items[0]
+			machineName = items[1]
+		} else {
+			machineName = args[0]
+		}
 
-	machine, err = cluster.GetMachineByMachineName(machineName)
-	if err != nil {
-		return fmt.Errorf("machine name not found: %s", machineName)
+		machine, err = cluster.GetMachineByMachineName(machineName)
+		if err != nil {
+			return fmt.Errorf("machine name not found: %s", machineName)
+		}
 	}
 
 	if userName == "" {
 		userName = machine.User()
 	}
-	return cluster.SSH(machine, userName, args[1:]...)
+
+	return cluster.SSH(machine, userName, configOptions.extraSshArgs)
 }
 
 func validateSSHArgs(cmd *cobra.Command, args []string) error {
-	if len(args) < 1 {
-		return errors.New("missing machine name argument")
+	if len(args) > 1 {
+		return errors.New("too many args")
 	}
 	return nil
 }
