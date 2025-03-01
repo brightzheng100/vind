@@ -24,6 +24,8 @@ import (
 	"text/tabwriter"
 
 	"github.com/brightzheng100/vind/pkg/config"
+	"github.com/mitchellh/go-homedir"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -51,7 +53,7 @@ type MachineStatus struct {
 // Formatter formats a slice of machines and outputs the result
 // in a given format.
 type Formatter interface {
-	Format(io.Writer, []*Machine) error
+	Format(io.Writer, *cluster, []*Machine) error
 }
 
 // JSONFormatter formats a slice of machines into a JSON and
@@ -62,13 +64,17 @@ type JSONFormatter struct{}
 // table like output and prints that to stdout.
 type TableFormatter struct{}
 
+// AnsibleFormatter formats a slice of machines into YAML and
+// outputs it to stdout
+type AnsibleFormatter struct{}
+
 type port struct {
 	Guest int `json:"guest"`
 	Host  int `json:"host"`
 }
 
 // Format will output to stdout in JSON format.
-func (JSONFormatter) Format(w io.Writer, machines []*Machine) error {
+func (JSONFormatter) Format(w io.Writer, _ *cluster, machines []*Machine) error {
 	var statuses []MachineStatus
 	for _, m := range machines {
 		statuses = append(statuses, *m.Status())
@@ -113,7 +119,7 @@ func (wr writer) writeColumns(w io.Writer, cols []string) {
 }
 
 // Format will output to stdout in table format.
-func (TableFormatter) Format(w io.Writer, machines []*Machine) error {
+func (TableFormatter) Format(w io.Writer, _ *cluster, machines []*Machine) error {
 	const padding = 3
 	wr := new(writer)
 	var statuses []MachineStatus
@@ -147,4 +153,47 @@ func (TableFormatter) Format(w io.Writer, machines []*Machine) error {
 		return wr.err
 	}
 	return table.Flush()
+}
+
+func (AnsibleFormatter) Format(w io.Writer, c *cluster, machines []*Machine) error {
+	var statuses []MachineStatus
+	for _, m := range machines {
+		statuses = append(statuses, *m.Status())
+	}
+	path, _ := homedir.Expand(c.config.Cluster.PrivateKey)
+
+	args := []string{
+		"-o", "UserKnownHostsFile=/dev/null",
+		"-o", "StrictHostKeyChecking=no",
+	}
+
+	m := map[string]interface{}{}
+	hosts := map[string]interface{}{}
+	for _, s := range statuses {
+		user := s.Spec.User
+		if s.Spec.User == "" {
+			user = defaultUser
+		}
+		port := 0
+		if len(s.Ports) > 0 {
+			port = s.Ports[0].Host
+		}
+		hosts[s.MachineName] = map[string]interface{}{
+			"ansible_host":                 "localhost",
+			"ansible_port":                 port,
+			"ansible_user":                 user,
+			"ansible_connection":           "ssh",
+			"ansible_ssh_private_key_file": path,
+			"ansible_ssh_common_args":      strings.Join(args, " "),
+		}
+	}
+	group := map[string]interface{}{}
+	group["hosts"] = hosts
+	m[c.config.Cluster.Name] = group
+	ms, err := yaml.Marshal(m)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(ms)
+	return err
 }

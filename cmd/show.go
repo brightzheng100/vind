@@ -39,7 +39,7 @@ var showOptions struct {
 }
 
 func init() {
-	showCmd.Flags().StringVarP(&showOptions.output, "output", "o", "table", "Output formatting options: {json,table}.")
+	showCmd.Flags().StringVarP(&showOptions.output, "output", "o", "table", "Output formatting options: {json,table,ansible}.")
 	rootCmd.AddCommand(showCmd)
 }
 
@@ -55,6 +55,8 @@ func show(cmd *cobra.Command, args []string) error {
 		formatter = new(cluster.JSONFormatter)
 	case "table":
 		formatter = new(cluster.TableFormatter)
+	case "ansible":
+		formatter = new(cluster.AnsibleFormatter)
 	default:
 		return fmt.Errorf("unknown formatter '%s'", showOptions.output)
 	}
@@ -62,5 +64,5 @@ func show(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	return formatter.Format(os.Stdout, machines)
+	return formatter.Format(os.Stdout, c, machines)
 }
