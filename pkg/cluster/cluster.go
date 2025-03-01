@@ -17,6 +17,7 @@ limitations under the License.
 package cluster
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"os"
@@ -143,7 +144,11 @@ func (c *cluster) Create() error {
 		if err != nil {
 			return errors.Wrap(err, "can't retrieve public key")
 		}
-		return m.Create(&c.config.Cluster, pk)
+		err = m.Create(&c.config.Cluster, pk)
+		if err != nil {
+			return err
+		}
+		return c.ensureHostKey(m)
 	})
 }
 
@@ -166,6 +171,66 @@ func (c *cluster) ensureSSHKey() error {
 		"-f", path,
 		"-N", "",
 	)
+}
+
+// ensureHostKey records the host key when needed
+func (c *cluster) ensureHostKey(machine *Machine) error {
+	if c.config.Cluster.KnownHosts == "" {
+		return nil
+	}
+	path, _ := homedir.Expand(c.config.Cluster.KnownHosts)
+
+	utils.Logger.Infof("Getting SSH key: %s ...", machine.machineName)
+	hostline, err := machine.HostKey()
+	if err != nil {
+		return err
+	}
+	hostline = strings.TrimSuffix(hostline, "\n")
+	fields := strings.Fields(hostline)
+	hostkey := fields[2]
+	if _, err := os.Stat(path); err != nil {
+		return os.WriteFile(path, []byte(hostline), 0o644)
+	}
+
+	// check if the host key is already in known_hosts
+	r, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+	known := false
+	lines := []string{}
+	scanner := bufio.NewScanner(r)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == hostline {
+			known = true
+			continue
+		}
+		fields := strings.Fields(line)
+		if fields[2] == hostkey {
+			//remove
+			continue
+		}
+		lines = append(lines, line)
+	}
+
+	// add the host key to the end of the known_hosts
+	w, err := os.OpenFile(path, os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+	if !known {
+		lines = append(lines, hostline)
+	}
+	for _, line := range lines {
+		_, err = w.WriteString(line + "\n")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // publicKey retrieves the public key content from machine or clus
@@ -298,7 +363,15 @@ func (c *cluster) Start(machineNames []string) error {
 	}
 
 	startMachineFun := func(m *Machine) error {
-		return m.Start()
+		started := m.IsStarted()
+		err := m.Start()
+		if err != nil {
+			return err
+		}
+		if started {
+			return nil
+		}
+		return c.ensureHostKey(m)
 	}
 
 	// start all if no specific machines are specified
@@ -434,15 +507,27 @@ func (c *cluster) SSH(machine *Machine, username string, extraSshArgs string) er
 		remote = mapping.Address
 	}
 	path, _ := homedir.Expand(c.config.Cluster.PrivateKey)
-	args := []string{
-		"-o", "UserKnownHostsFile=/dev/null",
-		"-o", "StrictHostKeyChecking=no",
+	kh, _ := homedir.Expand(c.config.Cluster.KnownHosts)
+
+	args := []string{}
+	if kh == "" {
+		args = append(args,
+			"-o", "UserKnownHostsFile=/dev/null",
+			"-o", "StrictHostKeyChecking=no",
+		)
+	} else {
+		args = append(args,
+			"-o", f("UserKnownHostsFile=%s", kh),
+			"-o", "HashKnownHosts=no",
+		)
+	}
+	args = append(args,
 		"-o", "IdentitiesOnly=yes",
 		"-i", path,
 		"-p", f("%d", hostPort),
 		"-l", username,
 		"-t", remote, // https://stackoverflow.com/questions/626533/how-can-i-ssh-directly-to-a-particular-directory
-	}
+	)
 
 	if len(extraSshArgs) > 0 {
 		// if there are any extra SSH args, let's respect them
