@@ -169,7 +169,7 @@ Copy and keep it first.
 
 Then, `vind ssh` into other nodes to join the cluster.
 
-#### Join `node1` into the cluster
+#### 4.1 Join `node1` into the cluster
 
 SSH into machine `node1`:
 
@@ -208,7 +208,7 @@ Yes, our cluster has two nodes!
 
 > Note: it may take 1 minute or so to turn the status into `Ready`. That's fine and just be patient.
 
-#### Join `node2` into the cluster
+#### 4.2 Join `node2` into the cluster
 
 Similarly, SSH into machine `node2`:
 
@@ -270,3 +270,63 @@ local-path-storage   local-path-provisioner-8ffbb88cb-7dwwv     1/1     Running 
 ```
 
 Done! You've successfully bootstrapped the Kubernetes cluster in a 3-node environment, just like you have 3 "normal" VMs, but for free on Docker.
+
+## Demo: Ansible
+
+When learning and practicing Ansible, we may need some VMs.
+
+`vind` can be a very handy tool to give you such VMs in seconds.
+
+Thanks to [@afbjorklund](https://github.com/afbjorklund) in PR #3, we now have a new output format for Ansible in `show` command.
+
+### 1. Create vind cluster as usual
+
+Omitted.
+
+### 2. Generate `inventory.yaml` with `show` command
+
+```sh
+$ vind show
+CONTAINER NAME         MACHINE NAME   PORTS       IP          IMAGE                              CMD          STATE
+cluster-ubuntu-node0   ubuntu-node0   43539->22   10.89.0.6   brightzheng100/vind-ubuntu:22.04   /sbin/init   Running
+cluster-ubuntu-node1   ubuntu-node1   39615->22   10.89.0.8   brightzheng100/vind-ubuntu:22.04   /sbin/init   Running
+
+$ vind show -o ansible > inventory.yaml
+
+$ cat inventory.yaml
+cluster:
+  hosts:
+    ubuntu-node0:
+      ansible_connection: ssh
+      ansible_host: localhost
+      ansible_port: 43539
+      ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+      ansible_ssh_private_key_file: /Users/brightzheng/demos/sandbox/vind/cluster-key
+      ansible_user: ubuntu
+    ubuntu-node1:
+      ansible_connection: ssh
+      ansible_host: localhost
+      ansible_port: 39615
+      ansible_ssh_common_args: -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+      ansible_ssh_private_key_file: /Users/brightzheng/demos/sandbox/vind/cluster-key
+      ansible_user: ubuntu
+```
+### 3. Let's Play with Ansible
+
+```sh
+$ ansible -i inventory.yaml -m ping all
+ubuntu-node1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.10"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+ubuntu-node0 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.10"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```

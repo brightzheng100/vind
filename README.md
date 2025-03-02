@@ -19,7 +19,7 @@ Such VM-like container behaves very much like a "normal" VM, it's even possible 
 On ARM Mx chip:
 
 ```sh
-LATEST_VERSION=`curl -s "https://api.github.com/repos/brightzheng100/vind/releases/latest" | grep '"tag_name":' | cut -c 17-21`
+LATEST_VERSION=`curl -s "https://api.github.com/repos/brightzheng100/vind/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4 | cut -c 2-`
 curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v${LATEST_VERSION}/vind_${LATEST_VERSION}_darwin_arm64.tar.gz
 tar -xvf vind.tar.gz && chmod +x vind
 sudo mv vind /usr/local/bin/
@@ -280,9 +280,10 @@ You may refer to [images/README.md](./images/README.md) for what have been prepa
 In the [demo/README.md](./demo/README.md), I've shared some interesting experiments as use cases that you may explore, on top of the `vind` fundamental capabilities.
 
 For example:
-- The automated demo to showcase the basic usage of `vind` at [General demo](./demo/README.md#general-demo).
-- Docker in `vind` about how to run Docker in `vind`'s Machine at [Demo: Docker in `vind`](./demo/README.md#demo-docker-in-vind).
-- Kubernetes in `vind` about how to build multi-node Kubernetes cluster from scratch in `vind`'s Machines at [Demo: Kubernetes in `vind`](./demo/README.md#demo-kubernetes-in-vind).
+- [General demo](./demo/README.md#general-demo): The automated demo to showcase the basic usage of `vind`.
+- [Demo: Docker in `vind`](./demo/README.md#demo-docker-in-vind): About how to run Docker in `vind`'s Machine.
+- [Demo: Kubernetes in `vind`](./demo/README.md#demo-kubernetes-in-vind): About how to build multi-node Kubernetes cluster from scratch with `vind`'s Machines.
+- [Demo: Ansible](./demo/README.md#demo-ansible): About how to play with Ansible with `vind`'s Machines.
 - And more to come -- don't forget to let me know if you've got some more interesting use cases, and PRs are always welcome.
 
 ## How About `podman`?
