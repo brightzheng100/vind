@@ -41,6 +41,7 @@ import (
 type cluster struct {
 	config   config.Config
 	keyStore *KeyStore
+	hosts    map[string]bool
 }
 
 // Container represents a running machine.
@@ -139,6 +140,7 @@ func (c *cluster) Create() error {
 	}
 
 	// create all machines
+	c.getAllHosts()
 	return c.forEachMachine(func(m *Machine) error {
 		pk, err := c.publicKey(m.spec)
 		if err != nil {
@@ -198,17 +200,15 @@ func (c *cluster) ensureHostKey(machine *Machine) error {
 		return err
 	}
 	defer r.Close()
-	known := false
 	lines := []string{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == hostline {
-			known = true
-			continue
+			return nil
 		}
 		fields := strings.Fields(line)
-		if fields[2] == hostkey {
+		if fields[2] == hostkey && !c.hosts[fields[0]] {
 			//remove
 			continue
 		}
@@ -221,9 +221,7 @@ func (c *cluster) ensureHostKey(machine *Machine) error {
 		return err
 	}
 	defer w.Close()
-	if !known {
-		lines = append(lines, hostline)
-	}
+	lines = append(lines, hostline)
 	for _, line := range lines {
 		_, err = w.WriteString(line + "\n")
 		if err != nil {
@@ -255,6 +253,21 @@ func (c *cluster) publicKey(machine *config.Machine) ([]byte, error) {
 		return nil, errors.Wrap(err, "public key expand")
 	}
 	return os.ReadFile(path + ".pub")
+}
+
+func (c *cluster) getAllHosts() {
+	hosts := map[string]bool{}
+	c.forEachMachine(func(m *Machine) error {
+		// TODO: mapping address
+		host := "localhost"
+		port, _ := m.HostPort(22)
+		if port != 22 {
+			host = fmt.Sprintf("[%s]:%d", host, port)
+		}
+		hosts[host] = true
+		return nil
+	})
+	c.hosts = hosts
 }
 
 func f(format string, args ...interface{}) string {
@@ -362,6 +375,7 @@ func (c *cluster) Start(machineNames []string) error {
 		return err
 	}
 
+	c.getAllHosts()
 	startMachineFun := func(m *Machine) error {
 		started := m.IsStarted()
 		err := m.Start()
