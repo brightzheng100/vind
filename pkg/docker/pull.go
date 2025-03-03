@@ -65,7 +65,7 @@ func Pull(image string, retries int) error {
 
 // IsRunning checks if Docker is running properly
 func IsRunning() error {
-	cmd := exec.Command("docker", "info")
+	cmd := exec.Command("docker", "version")
 	if err := cmd.Run(); err != nil {
 		utils.Logger.WithError(err).Infoln("Cannot connect to the Docker daemon. Is the docker daemon running?")
 		return err
