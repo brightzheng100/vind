@@ -68,6 +68,10 @@ type TableFormatter struct{}
 // outputs it to stdout
 type AnsibleFormatter struct{}
 
+// SSHConfigFormatter formats a slice of machines into ssh_config and
+// outputs it to stdout
+type SSHConfigFormatter struct{}
+
 type port struct {
 	Guest int `json:"guest"`
 	Host  int `json:"host"`
@@ -196,4 +200,51 @@ func (AnsibleFormatter) Format(w io.Writer, c *cluster, machines []*Machine) err
 	}
 	_, err = w.Write(ms)
 	return err
+}
+
+func (SSHConfigFormatter) Format(w io.Writer, c *cluster, machines []*Machine) error {
+	var statuses []MachineStatus
+	for _, m := range machines {
+		statuses = append(statuses, *m.Status())
+	}
+	path, _ := homedir.Expand(c.config.Cluster.PrivateKey)
+
+	args := map[string]interface{}{
+		"UserKnownHostsFile":    "/dev/null",
+		"StrictHostKeyChecking": "no",
+	}
+
+	l := []string{}
+	for _, s := range statuses {
+		user := s.Spec.User
+		if s.Spec.User == "" {
+			user = defaultUser
+		}
+		port := 0
+		if len(s.Ports) > 0 {
+			port = s.Ports[0].Host
+		}
+		opts := map[string]interface{}{
+			"Hostname":     "localhost",
+			"Port":         port,
+			"User":         user,
+			"IdentityFile": path,
+		}
+		for arg, val := range args {
+			opts[arg] = val
+		}
+
+		h := fmt.Sprintf("Host %s\n", s.MachineName)
+		for opt, val := range opts {
+			h += fmt.Sprintf("    %s %v\n", opt, val)
+		}
+		l = append(l, h)
+	}
+	for _, s := range l {
+		_, err := w.Write([]byte(s))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
