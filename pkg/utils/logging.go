@@ -25,7 +25,6 @@ var Logger = logrus.New()
 
 func init() {
 	Logger.SetFormatter(&logrus.TextFormatter{})
-	Logger.SetOutput(os.Stdout)
 
 	// defaults to Info log level
 	Logger.SetLevel(logrus.InfoLevel)
