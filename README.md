@@ -36,9 +36,20 @@ sudo mv vind /usr/local/bin/
 
 ### Linux
 
+On AMD64 / x86_64 CPU:
+
 ```sh
 LATEST_VERSION=`curl -s "https://api.github.com/repos/brightzheng100/vind/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4 | cut -c 2-`
 curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v${LATEST_VERSION}/vind_${LATEST_VERSION}_linux_amd64.tar.gz
+tar -xvf vind.tar.gz && chmod +x vind
+sudo mv vind /usr/local/bin/
+```
+
+On ARM64 CPU:
+
+```sh
+LATEST_VERSION=`curl -s "https://api.github.com/repos/brightzheng100/vind/releases/latest" | grep '"tag_name":' | cut -d '"' -f 4 | cut -c 2-`
+curl -Lo vind.tar.gz https://github.com/brightzheng100/vind/releases/download/v${LATEST_VERSION}/vind_${LATEST_VERSION}_linux_arm64.tar.gz
 tar -xvf vind.tar.gz && chmod +x vind
 sudo mv vind /usr/local/bin/
 ```
