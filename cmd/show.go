@@ -39,7 +39,7 @@ var showOptions struct {
 }
 
 func init() {
-	showCmd.Flags().StringVarP(&showOptions.output, "output", "o", "table", "Output formatting options: {json,table,ansible,ssh}.")
+	showCmd.Flags().StringVarP(&showOptions.output, "output", "o", "table", "Output formatting options: {table,json,ansible,ssh}.")
 	rootCmd.AddCommand(showCmd)
 }
 
@@ -51,10 +51,10 @@ func show(cmd *cobra.Command, args []string) error {
 	}
 	var formatter cluster.Formatter
 	switch showOptions.output {
-	case "json":
-		formatter = new(cluster.JSONFormatter)
 	case "table":
 		formatter = new(cluster.TableFormatter)
+	case "json":
+		formatter = new(cluster.JSONFormatter)
 	case "ansible":
 		formatter = new(cluster.AnsibleFormatter)
 	case "ssh":
