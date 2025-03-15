@@ -18,17 +18,6 @@ package cmd
 
 import "github.com/brightzheng100/vind/pkg/config"
 
-// imageTag computes the docker image tag given the footloose version.
-func imageTag(v string) string {
-	if v == "git" {
-		return "latest"
-	}
-	return v
-}
-
-// defaultKeyStore is the path where to store the public keys.
-const defaultKeyStorePath = "keys"
-
 var defaultConfig = config.Config{
 	Cluster: config.Cluster{
 		Name:       "cluster",
