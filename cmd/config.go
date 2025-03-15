@@ -38,15 +38,15 @@ func init() {
 
 func configFile(file string) string {
 	if file != "" {
-		utils.Logger.Debugf("config file used: %s", file)
+		utils.Logger.Infof("Config file used: %s", file)
 		return file
 	} else {
 		file = os.Getenv("VIND_CONFIG")
-		utils.Logger.Debugf("no config file specified, try getting from $VIND_CONFIG: %s", file)
+		utils.Logger.Debugf("No config file specified, try getting from $VIND_CONFIG: %s", file)
 		if file != "" {
-			utils.Logger.Debugf("config file used: %s", file)
+			utils.Logger.Infof("Config file used by $VIND_CONFIG: %s", file)
 		} else {
-			utils.Logger.Debugf("fall back to default config file: %s", DEFAULT_CONFIG_FILE)
+			utils.Logger.Infof("Fall back to default config file: %s", DEFAULT_CONFIG_FILE)
 			file = DEFAULT_CONFIG_FILE
 		}
 		return file
