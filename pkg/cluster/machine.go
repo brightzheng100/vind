@@ -17,10 +17,12 @@ limitations under the License.
 package cluster
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/brightzheng100/vind/pkg/config"
 	"github.com/brightzheng100/vind/pkg/docker"
@@ -299,6 +301,36 @@ func (m *Machine) IsStarted() bool {
 	res, _ := docker.Inspect(m.containerName, "{{.State.Running}}")
 	parsed, _ := strconv.ParseBool(strings.Trim(res[0], `'`))
 	return parsed
+}
+
+// HostKey returns the host key for a machine
+func (m *Machine) HostKey() (string, error) {
+	hostPort, err := m.HostPort(22)
+	if err != nil {
+		return "", err
+	}
+	mapping, err := mappingFromPort(m.spec, 22)
+	if err != nil {
+		return "", err
+	}
+	remote := "localhost"
+	if mapping.Address != "" {
+		remote = mapping.Address
+	}
+
+	cmd := exec.Command("ssh-keyscan",
+		"-t", "rsa",
+		"-p", f("%d", hostPort),
+		remote,
+	)
+	var buff bytes.Buffer
+	cmd.SetStdout(&buff)
+	time.Sleep(500 * time.Millisecond)
+	err = cmd.Run()
+	if err != nil {
+		return "error", err
+	}
+	return buff.String(), err
 }
 
 // HostPort returns the host port corresponding to the given container port.
