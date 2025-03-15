@@ -164,10 +164,18 @@ cluster-test-node2   test-node2     34237->22   10.88.0.23   brightzheng100/vind
 
 Actually there are just some Docker containers.
 
-Here, let's understand a bit on the naming, by given `cluster-test-node0` in our case: **{CLUSTER_NAME}**-**{MACHINE_SET}**-**{MACHINE WITH INDEX}**.
+Here, let's understand a bit on the naming, by given `cluster-test-node0` in our case: **{CLUSTER_NAME}**-**{MACHINE_SET}**-**{MACHINE_NAME_WITH_INDEX}**.
 - `cluster` is really the Cluster name, which can be any sensible name specified in YAML file's `cluster.name`.
 - `test` is the MachineSet's name.
 - `node{n}` is the Machine's name with index. Typically, we need to specify the machine with a desired index pattern, like `node%d`, or `node-%d`.
+
+Please note that there are some useful output formats, which can be specified by `--output` or `-o` parameter:
+
+- `table`: the default tab-based table-like format, as shown above.
+- `json`: the JSON format.
+- `ansible`: the Ansible inventory format. Once exported as say `inventory.yaml`, you can play with `vind` Machines like `ansible -i inventory.yaml -m ping all`.
+- `ssh`: the SSH config format. Once exported as say `ssh.config`, you can play with regular SSH command like `ssh -F ssh.config vind-node0`.
+
 
 ### ssh
 
@@ -301,6 +309,9 @@ $ which podman
 /opt/homebrew/bin/podman
 
 $ ln -s `which podman` /usr/local/bin/docker
+$ ls -al /usr/local/bin/docker
+lrwxr-xr-x ... /usr/local/bin/docker -> /opt/homebrew/bin/podman
+
 $ which docker
 /usr/local/bin/docker
 ```
