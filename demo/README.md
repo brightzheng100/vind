@@ -1,4 +1,4 @@
-# Demo
+# Demos
 
 ## General demo
 
@@ -108,7 +108,7 @@ Then, create the cluster -- before that, make sure the Docker network namely `my
 
 ```sh
 # Expose VIND_CONFIG and point to the right vind YAML file
-$ export VIND_CONFIG=`PWD`/k8s-in-vind/k8s-in-vind.yaml
+$ export VIND_CONFIG=`pwd`/k8s-in-vind/k8s-in-vind.yaml
 
 # Create the vind cluster
 $ vind create
