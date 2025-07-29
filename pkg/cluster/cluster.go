@@ -454,7 +454,7 @@ func (c *cluster) SSH(machine *Machine, username string, extraSshArgs string) er
 		cd := machine.AutoCdTo()
 		if cd != "" {
 			utils.Logger.Infof("Trying to cd into: %s", cd)
-			args = append(args, fmt.Sprintf("cd %s; exec $SHELL -l", cd))
+			args = append(args, fmt.Sprintf("cd \"%s\"; exec $SHELL -l", cd))
 		}
 	}
 
