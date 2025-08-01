@@ -42,6 +42,12 @@ type Cluster struct {
 	// This field is optional. If absent, machines are expected to have a public
 	// key defined.
 	PrivateKey string `json:"privateKey,omitempty"`
+
+	// KnownHosts is the path the SSH known_hosts file used to record host keys.
+	// Can be expanded to user homedir if ~ is found. Ex. ~/.ssh/known_hosts.
+	//
+	// This field is optional. If absent, strict host key checking will be disabled.
+	KnownHosts string `json:"knownHosts,omitempty"`
 }
 
 // MachineSet are a set of machines following the same specification.
