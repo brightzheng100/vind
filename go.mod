@@ -5,6 +5,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-github/v24 v24.0.1
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/moby/sys/signal v0.7.0
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v1.8.1

@@ -30,7 +30,6 @@ import (
 	"github.com/brightzheng100/vind/pkg/docker"
 	"github.com/brightzheng100/vind/pkg/exec"
 	"github.com/brightzheng100/vind/pkg/utils"
-	"github.com/docker/docker/api/types"
 	"github.com/ghodss/yaml"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
@@ -246,7 +245,7 @@ func (c *cluster) Show(machineNames []string) (machines []*Machine, err error) {
 					continue
 				}
 
-				var inspect types.ContainerJSON
+				var inspect InspectContainerJSON
 				if err := docker.InspectObject(m.containerName, ".", &inspect); err != nil {
 					return machines, err
 				}
